@@ -26,7 +26,7 @@ const Administrador = () => {
 
     useEffect(()=>{
         validarSesionAdmin();
-        getCasas()
+        getCasas('')
     },[]);
 
     const crearAlquiler = async()=>{
@@ -55,8 +55,8 @@ const Administrador = () => {
         }
     }
 
-    const getCasas = async()=>{
-        const respuesta = await axios.get(URL);
+    const getCasas = async(estado)=>{
+        const respuesta = await axios.get(`${URL}/${estado}`);
         setCasas(respuesta.data);
     }
 
@@ -148,15 +148,34 @@ const Administrador = () => {
 
             }
           });
-    }
+    }    
+      
 
     return (
         <>
             <NavbarAdmin></NavbarAdmin>
             <div className='container-fluid'>
-                <div className='d-flex mt-2 justify-content-end'>
+                <div className='d-flex mt-2 justify-content-between mx-3'>
+                    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">Filtrar</button>
                     <button className='btn btn-primary' data-bs-toggle="modal" data-bs-target="#nuevaPublicacion">Crear Nuevo Alquiler</button>
                 </div>
+
+                <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Buscar por</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+        <p className="fw-bold">Buscar por estado</p>
+        <select className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={(e) => getCasas(e.target.value)}>
+        <option value="">Todas</option>
+        <option value="disponible">Disponibles</option>
+        <option value="alquilado">Ocupadas / Alquiladas</option>
+        <option value="desactivado">Desactivadas</option>
+        </select>
+
+        </div>
+        </div>
                 
                 <div className='contenedor'>
                     {casas.map((casas)=>(

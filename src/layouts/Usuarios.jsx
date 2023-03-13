@@ -13,6 +13,10 @@ const Usuarios = () => {
 
   const [casas, setCasas] = useState([]);
 
+  const [search, setSearch] = useState("");
+  const [precioMinimo, setPrecioMinimo] = useState(0);
+  const [precioMaximo, setPrecioMaximo] = useState(1000000);
+
   const [idCasa, setIdCasa] = useState("");
   const [zona, setZona] = useState("");
   const [direccion, setDireccion] = useState("");
@@ -26,12 +30,36 @@ const Usuarios = () => {
 
   useEffect(() => {
     validarSesion();
-    casasDisponible();
-  }, []);
+    casasDisponible('');
+  }, [search]);
 
-  const casasDisponible = async () => {
-    const respuesta = await axios.get(URL);
+  const casasDisponible = async (zonas) => {
+    const respuesta = await axios.get(`${URL}/${zonas}`);
     setCasas(respuesta.data);
+  };
+
+
+  const sutmitBuscar = (e) => {
+    e.preventDefault();
+
+    setCasas(
+      casas.filter((item) =>
+        item.direccion.toLowerCase().includes(search.toLowerCase())
+      )
+    );
+  };
+
+  const submitBuscarPrecio = (e) => {
+    e.preventDefault();
+  
+    const filteredCasas = casas.filter((item) => {
+      const costoAlquiler = item.costoAlquiler;
+  
+      const costoMatches = (costoAlquiler >= precioMinimo && costoAlquiler <= precioMaximo);
+      return costoMatches
+    });
+  
+    setCasas(filteredCasas);
   };
 
   const estadoTrue = (estado) => {
@@ -115,6 +143,38 @@ const Usuarios = () => {
   return (
     <>
       <NavbarUsuarios></NavbarUsuarios>
+      <div className='d-flex mt-2 justify-content-between mx-3'>
+        <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">Filtrar</button>
+      </div>
+      <div class="offcanvas offcanvas-start" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="offcanvasScrolling" aria-labelledby="offcanvasScrollingLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="offcanvasScrollingLabel">Buscar por</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+        <p className="fw-bold">Buscar por zona</p>
+        <select className="form-select form-select-sm" aria-label=".form-select-sm example" onChange={(e) => casasDisponible(e.target.value)}>
+        <option value="">Todas</option>
+        <option value="norte">Norte</option>
+        <option value="centro">Centro</option>
+        <option value="sur">Sur</option>
+        </select>
+
+        <p className="fw-bold mt-4">Buscar por Direccion</p>
+        <form className="d-flex justify-content-center gap-2" onSubmit={sutmitBuscar}>
+          <input type="text" placeholder="Buscar por dirección" className="form-control w-100" onChange={(e) => setSearch(e.target.value)}/>
+          <button type="submit" className="btn btn-primary"> Buscar</button>
+        </form>
+
+        <p className="fw-bold mt-4">Buscar por Costo</p>
+        <form className="d-flex justify-content-center gap-2" onSubmit={submitBuscarPrecio}>
+          <input type="number" placeholder="Precio Minimo" value={precioMinimo} className="form-control w-100" onChange={(e) => setPrecioMinimo(e.target.value)}/>
+          <input type="number" placeholder="Precio Maximo" value={precioMaximo} className="form-control w-100" onChange={(e) => setPrecioMaximo(e.target.value)}/>
+          <button type="submit" className="btn btn-primary"> Buscar</button>
+        </form>
+
+        </div>
+      </div>
       <div className="contenedor">
         {casas.map((casas) => (
           <div key={casas._id} className="card">
