@@ -192,6 +192,7 @@ const Usuarios = () => {
               <div className="d-flex justify-content-end">
                 <div>
                   <button
+                  style={{borderRadius: '20px'}}
                     className={
                       casas.estado.alquilado
                         ? "btn btn-primary"
@@ -203,6 +204,10 @@ const Usuarios = () => {
                     {estadoTrue(casas.estado)}
                   </button>
                 </div>
+              </div>
+
+              <div className='w-100 text-center mt-1'>
+                <img className='w-75' style={{height: '150px'}} src={casas.imgCasa.urlImg} alt={casas.imgCasa.urlImg} />
               </div>
 
               <div className="input-group flex-nowrap my-2">

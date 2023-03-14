@@ -13,6 +13,9 @@ const Administrador = () => {
 
     const { validarSesionAdmin } = useContext(Contexto);
 
+    const [imgSeleccImg, setSeleccImg] = useState(null);
+    const [imgAlquiler, setImgAlquiler] = useState(null);
+
     const [casas, setCasas] = useState([]);
 
     const [zona, setZona] = useState('');
@@ -42,17 +45,42 @@ const Administrador = () => {
 
     const crearAlquiler = async () => {
         try {
-            const respuesta = await axios.post(URL, { zona: zona, direccion: direccion, costoAlquiler: costoAlquiler, ancho: ancho, largo: largo, numPisos: pisos, capacidadPersona: capacidadPersonas, categoria: categoria, descripcion: descripcion });
-            if (respuesta.status === 200 && respuesta.data) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Registrado correctamente',
-                    showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    window.location.href = '/administrador'
-                });
-            }
+            const formData = new FormData();
+            formData.append('fotoAlquiler', imgAlquiler);
+            formData.append('zona', zona);
+            formData.append('direccion', direccion);
+            formData.append('costoAlquiler', costoAlquiler);
+            formData.append('ancho', ancho);
+            formData.append('largo', largo);
+            formData.append('numPisos', pisos);
+            formData.append('capacidadPersona', capacidadPersonas);
+            formData.append('categoria', categoria);
+            formData.append('descripcion', descripcion);
+
+            const loading = Swal.fire({
+                title: 'Registrando Alquiler',
+                text: 'Espere un momento por favor...',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+            });
+
+            await axios.post(URL, formData);
+
+            // Cierra la alerta de espera
+            loading.close();
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Registrado correctamente',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location.href = '/administrador'
+            });
+
         } catch (error) {
             if (error.response.status === 400) {
                 Swal.fire({
@@ -162,6 +190,16 @@ const Administrador = () => {
         });
     }
 
+    const handleImageChange = (e) => {
+        setImgAlquiler(e.target.files[0]);
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+            setSeleccImg(reader.result);
+        };
+        reader.readAsDataURL(file);
+    };
+
 
     return (
         <>
@@ -195,17 +233,112 @@ const Administrador = () => {
                             <div className="card-body">
                                 <div className='d-flex justify-content-end'>
                                     <div>
-                                        <button className={casas.estado.alquilado ? 'btn btn-warning' : casas.estado.desactivado ? 'btn btn-danger' : 'btn btn-success'}>{estadoTrue(casas.estado)}</button>
+                                        <button style={{borderRadius: '20px'}} className={casas.estado.alquilado ? 'btn btn-warning' : casas.estado.desactivado ? 'btn btn-danger' : 'btn btn-success'}>{estadoTrue(casas.estado)}</button>
                                     </div>
                                 </div>
-                                <h5 className="card-title">{casas.zona}</h5>
-                                <p className="card-text">{casas.descripcion}</p>
-                                <p className="card-text">{casas.direccion}</p>
-                                <p className="card-text">Costo: ${casas.costoAlquiler} pesos</p>
-                                <p className="card-text">Capacidad: {casas.capacidadPersona} Personas</p>
-                                <p className="card-text">Categoria: {casas.categoria}</p>
-                                <p className="card-text">{casas.medidas.ancho} metros x {casas.medidas.largo} metros</p>
-                                <p className="card-text">Pisos: {casas.numPisos}</p>
+                                <div className='w-100 text-center mt-1'>
+                                    <img className='w-75' style={{height: '150px'}} src={casas.imgCasa.urlImg} alt={casas.imgCasa.urlImg} />
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Zona
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <h5>{casas.zona}</h5>
+                                    </label>
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Costo
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>${casas.costoAlquiler} Pesos</span>
+                                    </label>
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Descripción
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.descripcion}</span>
+                                    </label>
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Dirección
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.direccion}</span>
+                                    </label>
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Capacidad
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.capacidadPersona} Personas</span>
+                                    </label>
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Categoria
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.categoria}</span>
+                                    </label>
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Largo
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.medidas.ancho} Metros</span>
+                                    </label>
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Ancho
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.medidas.largo} Metros</span>
+                                    </label>
+                                </div>
+
+                                <div className="input-group flex-nowrap my-2">
+                                    <span className="input-group-text" id="addon-wrapping">
+                                        Pisos
+                                    </span>
+                                    <label
+                                        className="form-control form-control-disabled"
+                                        htmlFor="direccion"
+                                    >
+                                        <span>{casas.numPisos}</span>
+                                    </label>
+                                </div>
+
                                 <hr />
                                 <div className='d-flex gap-1'>
                                     <div>
@@ -227,6 +360,17 @@ const Administrador = () => {
                                 <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div className="modal-body">
+
+                                <div className="selected-image text-center w-100 mb-3">
+                                    {imgSeleccImg ? <img className='w-50' src={imgSeleccImg} alt="Imagen seleccionada" /> : <p>No se ha seleccionado ninguna imagen</p>}
+                                </div>
+
+                                <div className="form-group mb-3">
+                                    <div className="custom-input-file col-md-6 col-sm-6 col-xs-6">
+                                        <input type="file" id="fichero-tarifas" className="input-file" name='imgPublicacion' onChange={handleImageChange}></input>
+                                        Seleccione una Imagen de Alquiler...
+                                    </div>
+                                </div>
 
                                 <div>
                                     <select className="form-select my-2" aria-label="Default select example" onChange={(e) => setZona(e.target.value)}>
