@@ -1,20 +1,55 @@
 .contenedor {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 20px;
-    padding: 20px;
-    text-align: center;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 20px;
+  padding: 20px;
+  text-align: center;
+}
+
+@media screen and (min-width: 576px) {
+  .contenedor {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  @media screen and (min-width: 576px) {
-    .contenedor {
-      grid-template-columns: repeat(2, 1fr);
-    }
+}
+
+@media screen and (min-width: 992px) {
+  .contenedor {
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  @media screen and (min-width: 992px) {
-    .contenedor {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
+}
+
+/* Estilos de paginación */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.pagination li {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.pagination li a {
+  display: block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  color: #333;
+  background-color: #f7f7f7;
+  text-decoration: none;
+}
+
+.pagination li.active a {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination li.disabled a {
+  color: #ccc;
+}
+
+.pagination li:hover a {
+  background-color: #eee;
+}
